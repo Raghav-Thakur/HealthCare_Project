@@ -30,7 +30,28 @@ app.use(cors());
 app.get('/', (req, res) => {
     res.send("working");
 });
-
+app.get("/home",(req,res) =>{
+    const data = {
+        title:"document",
+        message:"hello world"
+    }
+    res.render("home",data)
+})
+app.get("/user",(req,res)=>{
+    const users = [
+    {
+        id:1,
+        name:"raghav",
+        age:20
+    },
+    {
+        id:2,
+        name:"pransh",
+        age:2
+    }
+    ]
+    res.render("user",{ users })
+})
 // Start the server and listen on the specified port
 app.listen(port, () => {
     console.log(`Server running on port http://localhost:${port}`);  // Corrected backticks for template literal
