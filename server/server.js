@@ -8,11 +8,14 @@ const connectDb = require("./config/dbConnection");
 // Load environment variables from .env file
 dotenv.config();
 
-// Connect to the database
-connectDb();
-
 // Initialize express app
 const app = express();
+
+// Set the view engine
+app.set('view engine', 'hbs');
+
+// Connect to the database
+connectDb();
 
 // Set the port from environment variables or default to 5000
 const port = process.env.PORT || 5000;
