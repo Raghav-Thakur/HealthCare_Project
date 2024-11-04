@@ -32,4 +32,19 @@ const registerDoctor = asyncHandler(async (req, res) => {
   });
 });
 
-module.exports = { registerDoctor };
+//get all docs
+const getAllDoctors = asyncHandler(async (req,res) => {
+    const doctors = await Doctor.find();
+    res.status(200).json(doctors);
+})
+//get doctor by id
+const getDoctorbyId = asyncHandler(async (req, res) => {
+    const doctor = await Doctor.findById(req.params.id);
+
+    if(!doctor) {
+        res.status(404);
+        throw new Error("Doctor not found");
+    }
+    res.status(200).json(doctors);
+});
+module.exports = { registerDoctor, getAllDoctors, getDoctorbyId };
