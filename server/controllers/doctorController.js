@@ -45,6 +45,6 @@ const getDoctorbyId = asyncHandler(async (req, res) => {
         res.status(404);
         throw new Error("Doctor not found");
     }
-    res.status(200).json(doctors);
+    res.status(200).json(doctor);
 });
 module.exports = { registerDoctor, getAllDoctors, getDoctorbyId };
