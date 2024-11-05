@@ -26,6 +26,9 @@ const registerDoctor = asyncHandler(async (req, res) => {
     address
   });
 
+  //Testting
+  
+  //testing end
   res.status(201).json({
     message: "Doctor registered successfully",
     doctor: newDoctor

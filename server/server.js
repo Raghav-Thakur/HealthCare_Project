@@ -8,6 +8,7 @@ const hbs = require("hbs");  // Importing hbs
 const path = require("path");  // Importing path
 const userRoutes = require("./routes/userRoutes"); // Import user routes
 const doctorRoutes = require('./routes/doctorRoutes');
+
 // Load environment variables from .env file
 dotenv.config();
 
@@ -46,7 +47,7 @@ app.get("/home", (req, res) => {
     res.render("home", data);
 });
 
-// User route
+// User route (this is a static route for demonstration purposes)
 app.get("/user", (req, res) => {
     const users = [
         {
@@ -63,9 +64,10 @@ app.get("/user", (req, res) => {
     res.render("user", { users });
 });
 
-// Register user routes after app initialization
-app.use("/api", userRoutes); // Use '/api' to access /api/register
-app.use('/api/doctors', doctorRoutes);
+// Register user routes
+app.use("/api", userRoutes); // Handles routes like /api/register and /api/login
+app.use('/api/doctors', doctorRoutes); // Handles doctor-related routes
+
 // Start the server and listen on the specified port
 app.listen(port, () => {
     console.log(`Server running on port http://localhost:${port}`);
