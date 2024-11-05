@@ -8,6 +8,11 @@
 <body>
     {{> partials}}
     <h1>{{message}}</h1>
-
+    <div>
+        <form action="/profile" method="post" enctype="multipart/form-data">
+        <input type="file" name="avatar">
+        <input type="submit" value="upload">
+        </form>
+    </div>
 </body>
 </html>

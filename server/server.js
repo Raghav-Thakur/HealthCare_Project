@@ -8,6 +8,8 @@ const hbs = require("hbs");  // Importing hbs
 const path = require("path");  // Importing path
 const userRoutes = require("./routes/userRoutes"); // Import user routes
 const doctorRoutes = require('./routes/doctorRoutes');
+const multer = require("multer");
+const upload = multer({dest: 'uploads/'});
 
 // Load environment variables from .env file
 dotenv.config();
@@ -68,6 +70,10 @@ app.get("/user", (req, res) => {
 app.use("/api", userRoutes); // Handles routes like /api/register and /api/login
 app.use('/api/doctors', doctorRoutes); // Handles doctor-related routes
 
+app.post('/profile', upload.single('avatar'), function(req,res,next) {
+    console.log(req.body);
+    console.log(req.file);
+});
 // Start the server and listen on the specified port
 app.listen(port, () => {
     console.log(`Server running on port http://localhost:${port}`);
