@@ -9,13 +9,24 @@ const path = require("path");  // Importing path
 const userRoutes = require("./routes/userRoutes"); // Import user routes
 const doctorRoutes = require('./routes/doctorRoutes');
 const multer = require("multer");
-const upload = multer({dest: 'uploads/'});
 
 // Load environment variables from .env file
 dotenv.config();
 
 // Initialize express app
 const app = express();
+
+// Configure multer for file storage
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads');
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix+path.extname(file.originalname));
+    }
+});
+const upload = multer({ storage: storage });
 
 // Set the view engine
 app.set('view engine', 'hbs');
@@ -35,6 +46,10 @@ app.use(express.json());
 // Middleware for CORS (Cross-Origin Resource Sharing)
 app.use(cors());
 
+// Serve static files from the uploads directory
+const uploadDir = path.join(__dirname, 'uploads');
+app.use('/uploads', express.static(uploadDir));
+
 // Test route to check if the server is running
 app.get('/', (req, res) => {
     res.send("working");
@@ -52,16 +67,8 @@ app.get("/home", (req, res) => {
 // User route (this is a static route for demonstration purposes)
 app.get("/user", (req, res) => {
     const users = [
-        {
-            id: 1,
-            name: "raghav",
-            age: 20
-        },
-        {
-            id: 2,
-            name: "pransh",
-            age: 2
-        }
+        { id: 1, name: "raghav", age: 20 },
+        { id: 2, name: "pransh", age: 2 }
     ];
     res.render("user", { users });
 });
@@ -70,23 +77,19 @@ app.get("/user", (req, res) => {
 app.use("/api", userRoutes); // Handles routes like /api/register and /api/login
 app.use('/api/doctors', doctorRoutes); // Handles doctor-related routes
 
-app.post('/profile', upload.single('avatar'), function(req,res,next) {
+// Profile upload route
+app.post('/profile', upload.single('avatar'), function(req, res, next) {
+    if (!req.file) {
+        return res.status(400).send("No File Uploaded");
+    }
     console.log(req.body);
     console.log(req.file);
-    return res.redirect("/home");
-});
+    const fileName = req.file.filename;
+    const imageUrl = `/uploads/${fileName}`;
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-      cb(null, '/tmp/my-uploads')
-    },
-    filename: function (req, file, cb) {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-      cb(null, file.fieldname + '-' + uniqueSuffix)
-    }
-  })
-  
-//   const upload = multer({ storage: storage })
+    // Render the home view with imageUrl
+    res.render("home", { imageUrl: imageUrl });
+});
 
 // Start the server and listen on the specified port
 app.listen(port, () => {
