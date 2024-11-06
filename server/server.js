@@ -1,12 +1,12 @@
 // FRAMEWORK CONFIGURATION
-// --- Always Import/Require on top ---
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const connectDb = require("./config/dbConnection");
-const hbs = require("hbs");  // Importing hbs
-const path = require("path");  // Importing path
-const userRoutes = require("./routes/userRoutes"); // Import user routes
+const hbs = require("hbs");
+const path = require("path");
+const fs = require("fs"); // Importing fs to read files from the uploads directory
+const userRoutes = require("./routes/userRoutes");
 const doctorRoutes = require('./routes/doctorRoutes');
 const multer = require("multer");
 
@@ -23,7 +23,7 @@ const storage = multer.diskStorage({
     },
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, file.fieldname + '-' + uniqueSuffix+path.extname(file.originalname));
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
     }
 });
 const upload = multer({ storage: storage });
@@ -64,7 +64,7 @@ app.get("/home", (req, res) => {
     res.render("home", data);
 });
 
-// User route (this is a static route for demonstration purposes)
+// User route
 app.get("/user", (req, res) => {
     const users = [
         { id: 1, name: "raghav", age: 20 },
@@ -74,21 +74,28 @@ app.get("/user", (req, res) => {
 });
 
 // Register user routes
-app.use("/api", userRoutes); // Handles routes like /api/register and /api/login
-app.use('/api/doctors', doctorRoutes); // Handles doctor-related routes
+app.use("/api", userRoutes);
+app.use('/api/doctors', doctorRoutes);
 
 // Profile upload route
 app.post('/profile', upload.single('avatar'), function(req, res, next) {
     if (!req.file) {
         return res.status(400).send("No File Uploaded");
     }
-    console.log(req.body);
-    console.log(req.file);
-    const fileName = req.file.filename;
-    const imageUrl = `/uploads/${fileName}`;
+    // Redirecting to /allimages route to render all images
+    res.redirect('/allimages');
+});
 
-    // Render the home view with imageUrl
-    res.render("home", { imageUrl: imageUrl });
+// Route to display all images
+app.get("/allimages", (req, res) => {
+    fs.readdir(uploadDir, (err, files) => {
+        if (err) {
+            return res.status(500).send("Unable to scan directory: " + err);
+        }
+        // Map the files to image URLs
+        const imageUrls = files.map(file => `/uploads/${file}`);
+        res.render("allimages", { imageUrls: imageUrls });
+    });
 });
 
 // Start the server and listen on the specified port
